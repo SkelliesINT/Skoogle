@@ -22,14 +22,18 @@
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.edge.options import Options as EdgeOptions
 import pandas as pd
 import time
 
 FILE_PATH_FOLDER = ('..')
 article_data_arrays = []
-NUMBER_OF_PAGES = 10
+NUMBER_OF_PAGES = 3
 
-driver = webdriver.Edge()
+options = EdgeOptions()
+options.add_argument("--headless=new")
+
+driver = webdriver.Edge(options=options)
 
 driver.get('https://google.com')
 
