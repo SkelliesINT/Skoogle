@@ -27,12 +27,12 @@ import pandas as pd
 import time
 
 # Settings Variables
-NUMBER_OF_PAGES = 3
+N_ARTICLES_PER_SOURCE = 25
 FILE_PATH_FOLDER = ('..')
-HEADLESS = True
+HEADLESS = False
 SEARCH_TERM = "cyber news"
 VERSION = "0.0.4"
-VERBOSE = False
+VERBOSE = True
 WAIT_PER_SEARCH = 2
 WAIT_PER_PAGE = 1
 
@@ -47,25 +47,29 @@ def get_google_news(driver,article_data_arrays):
 	search_bar.send_keys(SEARCH_TERM)
 	search_bar.submit()
 	time.sleep(WAIT_PER_SEARCH)
-	news_tab = driver.find_element(By.XPATH, "//a[@data-hveid='CAEQAw']") or driver.find_element(By.XPATH, "//a[@data-hveid='CAMQAw']")
+	news_tab = driver.find_element(By.XPATH, "//div[@class='MUFPAc']/div[2]/a[1]")
 	news_tab.click()
-	for pg_n in range(NUMBER_OF_PAGES):
-		time.sleep(WAIT_PER_PAGE)
-		n_articles = len(driver.find_elements(By.XPATH, f"//div[@class='{ARTICLE_DIV_CLASS_NAME}']"))
-
-		print(f"Page {pg_n+1}: {n_articles} articles founds")
-		
-		for i in range(1,(n_articles+1)): # "i" is the article's top div
-			article_title = driver.find_element(By.XPATH, f"//div[@class='MjjYud']/div[1]/div[{i}]//div[@class='{TITLE_DIV_CLASS_NAME}']")
-			article_agency = driver.find_element(By.XPATH, f"//div[@class='MjjYud']/div[1]/div[{i}]//div[@class='{AGENCY_DIV_CLASS_NAME}']")
-			article_date = driver.find_element(By.XPATH, f"//div[@class='MjjYud']/div[1]/div[{i}]//div[@class='{DATE_DIV_CLASS_NAME}']")
-			article_link = driver.find_element(By.XPATH, f"//div[@class='MjjYud']/div[1]/div[{i}]//a[@class='{HREF_TAG_CLASS_NAME}']")
-			article_data = [article_title.text,article_agency.text,article_date.text,article_link.get_attribute("href")]
-			article_data_arrays.append(article_data)
-			print(f"Article {i}: {article_title.text}")
-		if NUMBER_OF_PAGES > 1:
-			next_button = driver.find_element(By.ID, 'pnnext')
-			next_button.click()
+	time.sleep(WAIT_PER_PAGE)
+	i = 1
+	for n in range(1,N_ARTICLES_PER_SOURCE):
+		article = None
+		while not article:
+			try:
+				article = driver.find_element(By.XPATH, f"//div[@class='MjjYud']/div[1]/div[{i}]")
+			except:
+				i = 1
+				next_button = driver.find_element(By.ID, 'pnnext')
+				if not next_button:
+					return
+				next_button.click()
+		article_title = driver.find_element(By.XPATH, f"//div[@class='MjjYud']/div[1]/div[{i}]//div[@class='{TITLE_DIV_CLASS_NAME}']")
+		article_agency = driver.find_element(By.XPATH, f"//div[@class='MjjYud']/div[1]/div[{i}]//div[@class='{AGENCY_DIV_CLASS_NAME}']")
+		article_date = driver.find_element(By.XPATH, f"//div[@class='MjjYud']/div[1]/div[{i}]//div[@class='{DATE_DIV_CLASS_NAME}']")
+		article_link = driver.find_element(By.XPATH, f"//div[@class='MjjYud']/div[1]/div[{i}]//a[@class='{HREF_TAG_CLASS_NAME}']")
+		article_data = [article_title.text,article_agency.text,article_date.text,article_link.get_attribute("href")]
+		article_data_arrays.append(article_data)
+		i+=1
+			
 
 def get_bing_news(driver,article_data_arrays):
 	driver.get("https://www.bing.com/news")
@@ -79,8 +83,7 @@ def get_bing_news(driver,article_data_arrays):
 	last_24_hours_button = driver.find_element(By.XPATH, "//div[@id='newsFilterV5']//ul[@role='list']/li[2]/a[1]")
 	last_24_hours_button.click()
 	time.sleep(WAIT_PER_SEARCH)
-	n_articles = NUMBER_OF_PAGES*10
-	for i in range(1,n_articles+1):
+	for i in range(1,N_ARTICLES_PER_SOURCE+1):
 		article = None
 		while not article:
 			try:
@@ -95,15 +98,41 @@ def get_bing_news(driver,article_data_arrays):
 		article_data = [article_title,article_agency,article_date.text,article_link]
 		article_data_arrays.append(article_data)
 
+def get_ddg_news(driver,article_data_arrays):
+	driver.get('https://duckduckgo.com')
+	search_bar = driver.find_element(By.XPATH, "//input[@id='search_form_input_homepage']")
+	search_bar.send_keys(SEARCH_TERM)
+	search_bar.submit()
+	time.sleep(0.5)
+	time_sort_button = driver.find_element(By.XPATH, "//div[@class='dropdown  dropdown--date ']/a[1]")
+	time_sort_button.click()
+	time.sleep(0.5)
+	past_day_button = driver.find_element(By.XPATH, "//a[@data-value='d']")
+	past_day_button.click()
+	time.sleep(0.5)
+	news_button = driver.find_element(By.XPATH, "//a[@data-zci-link='news']")
+	news_button.click()
+	time.sleep(WAIT_PER_SEARCH)
+	for i in range(1,N_ARTICLES_PER_SOURCE+1):
+		article = None
+		while not article:
+			try:
+				article = driver.find_element(By.XPATH, f"//div[@class='results js-vertical-results']/div[{i}]/div[@class='result__body']")
+			except:
+				load_more_button = driver.find_element(By.XPATH, "//a[@class='result--more__btn btn btn--full']")
+				if not load_more_button:
+					return
+				load_more_button.click()
+				time.sleep(WAIT_PER_PAGE)
+		article_title = driver.find_element(By.XPATH, f"//div[@class='results js-vertical-results']/div[{i}]//h2[@class='result__title']/a[1]")
+		article_agency = driver.find_element(By.XPATH, f"//div[@class='results js-vertical-results']/div[{i}]//div[@class='result__extras']//a[@class='result__url']")
+		article_date = driver.find_element(By.XPATH, f"//div[@class='results js-vertical-results']/div[{i}]//div[@class='result__extras']//span[@class='result__timestamp']")
+		article_link = article_title.get_attribute("href")
+		article_data = [article_title.text,article_agency.text,article_date.text,article_link]
+		article_data_arrays.append(article_data)
 
-def get_yandex_news(driver,article_data_arrays):
-	pass
+	return
 
-def get_ddg_news():
-	pass
-
-def get_yandex_news():
-	pass
 
 def get_hn_news():
 	pass
@@ -127,6 +156,7 @@ def main():
 
 	get_google_news(driver,article_data_arrays)
 	get_bing_news(driver,article_data_arrays)
+	get_ddg_news(driver,article_data_arrays)
 
 	article_data_frame = pd.DataFrame(article_data_arrays)
 	article_data_frame.columns = ['title', 'agency', 'text','link']
