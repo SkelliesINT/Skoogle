@@ -1,5 +1,5 @@
 #Skoogle News Scraper
-#An automated google cyber news scraper utilizing the Selenium webdriver on Microsoft Edge and Pandas for report generating.
+#An automated cyber news scraper utilizing the Selenium webdriver on Microsoft Edge and Pandas for report generating.
 #By: SkelliesINT
 #Collaborators: Jack Sledge
 
