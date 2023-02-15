@@ -149,6 +149,7 @@ def sort_recent():
 def main():
 	t0 = time.time()
 	print("Skoogle is running...")
+	print("Search term:", SEARCH_TERM)
 	article_data_arrays = []
 	options = EdgeOptions()
 	options.add_argument("log-level=3")
