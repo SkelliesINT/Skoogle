@@ -29,7 +29,7 @@ import time
 # Settings Variables
 N_ARTICLES_PER_SOURCE = 25
 FILE_PATH_FOLDER = ('..')
-HEADLESS = False
+HEADLESS = True
 SEARCH_TERM = "cyber news"
 VERSION = "0.0.4"
 VERBOSE = True
@@ -147,8 +147,11 @@ def sort_recent():
 	pass
 
 def main():
+	t0 = time.time()
+	print("Skoogle is running...")
 	article_data_arrays = []
 	options = EdgeOptions()
+	options.add_argument("log-level=3")
 	if HEADLESS:
 		options.add_argument("--headless=new")
 
@@ -164,6 +167,9 @@ def main():
 
 	time.sleep(1)
 	driver.quit()
+	t1 = time.time()
+	print("COMPLETE")
+	print("Elapsed time:", t1-t0)
 
 if __name__ == "__main__":
 	main()
