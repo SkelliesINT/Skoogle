@@ -1,17 +1,21 @@
 # Skoogle
-##Synopsis:
+Synopsis:
+
 An automated Python based news scraper that takes the data collected and formats into a csv file for analysis. Utilizing Selenium for webdriving and Pandas for report formatting.
 
-##Purpose: 
+Purpose: 
+
 Intended to be used as a cronjob/scheduled task script to automate the daily gathering of current news, specific to the user's interest, in a concise manner.
 
-##Dependencies-
+Dependencies:
+
 - Microsoft Edge
 - Python
 - Selenium
 - Pandas
 
-##Current capabilities:
+Current capabilities:
+
 * Google, Bing, DuckDuckGo:
 	- Gathers  Article title
 	- Gathers time since posted
