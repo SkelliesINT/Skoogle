@@ -1,5 +1,4 @@
 # Skoogle
-Synopsis:
 
 An automated Python based news scraper that takes the data collected and formats into a csv file for analysis. Utilizing Selenium for webdriving and Pandas for report formatting.
 
