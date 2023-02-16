@@ -164,6 +164,7 @@ def main():
 
 	article_data_frame = pd.DataFrame(article_data_arrays)
 	article_data_frame.columns = ['title', 'agency', 'text','link']
+	article_data_frame.to_html('articles.html',  index=False)
 	article_data_frame.to_csv('articles.csv',  index=False)
 
 	time.sleep(1)
